@@ -1,48 +1,32 @@
-import pandas
-from bs4 import BeautifulSoup
-import html5lib
-import requests
-import csv  
-from datetime import datetime 
+from flask import Flask, request, jsonify
+from flask.cli import AppGroup
+from models import db, Episode  # Assuming Episode is the SQLAlchemy model for episodes
 
+# Create a Flask app
+app = Flask(__name__)
 
+# Define a Flask CLI command group
+episode_cli = AppGroup('episode')
 
-def get_url (position,location, page):
-    TEMPLATES = "https://www.monster.com/jobs/search?q={}&where={}&page={}&so=m.h.s"
-    url = TEMPLATES.format(position,location,page)
-    return url
-a = input("ENTER NNUMBER OF PAGES : ")
-b = input("ENTETR JOB LOCATION : ")
-c = input("ENTER NAME OF JOB : ")
-url = get_url(a,b,c)
+# Define the command to handle episode input
+@episode_cli.command('add')
+def add_episode():
+    # Parse input data from HTML form
+    title = request.form.get('title')
+    episode_number = request.form.get('episode_number')
+    # Parse other input fields as needed
 
-response =requests.get(url)
-# print(response)
-# print(response.reason)
-soup = BeautifulSoup(response.text ,"html5lib")
-# print(soup.prettify())
-link_list = []
-job_link = soup.find_all("a")
-clue = "https://www.monster.com/job-openings/"
-for links in job_link:
-    z = links.get('href')
-    if z and clue in z:
-        link_list.append(z)
+    # Create a new Episode object
+    episode = Episode(title=title, episode_number=episode_number)
+    # Add the episode to the database session
+    db.session.add(episode)
+    # Commit the changes to the database
+    db.session.commit()
 
-print(link_list)
-print(len(link_list))
+    return jsonify({'message': 'Episode added successfully'})
 
-for urls in link_list:
-    my_urls = requests.get(urls).text 
-    soup_urls = BeautifulSoup(my_urls,"html5lib")
+# Register the CLI command group with the Flask app
+app.cli.add_command(episode_cli)
 
-    # Find all divs with class "article-body-text"
-    boxes = soup_urls.find_all("div", class_="descriptionstyles__DescriptionContainerOuter-sc-7dvtrp-0 iJISVC")
-    # body_written = False  # Flag to track if "BODY" has been written
-    for box in boxes:
-        paragraphs = box.find_all('p')
-        for paragraph in paragraphs:
-            you = paragraph.get_text(strip=True)
-        print(you )    
-
-
+if __name__ == '__main__':
+    app.run(debug=True)
