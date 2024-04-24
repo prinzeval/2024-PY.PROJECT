@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Site</title>
+    <link rel="stylesheet" href="static/string.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Movie Site</h1>
+    </header>
+
+    <nav>
+        <a href="#">Home</a>
+        <a href="#">Movies</a>
+        <a href="#">About</a>
+        <a href="#">Contact</a>
+    </nav>
+
+    <section>
+        {% for movie in movies %}
+        <div class="movie">
+            <img src="static/VALLOGOS.jpg" alt="Movie Poster">
+            <div>
+                {% include 'movieitem.html' %}
+            </div>
+        </div>
+        <div id="details" class="section-box">
+            <div class="section-header">
+                <h2 class="section-title play"></h2>
+            </div>
+            {% for episode in episodes %}
+            {% if episode['movie_id'] == movie['id'] %}
+            <a class="episode episode_series_link esp-circle"
+               href="{{ episode['video_link'] }}">{{ episode['episode_number'] }}</a>&nbsp;
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Episode ID</th>
+                    <th>Movie ID</th>
+                    <th>Episode Number</th>
+                    <th>Title</th>
+                    <th>Air Date</th>
+                    <th>Description</th>
+                    <th>Link</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for episode in episodes %}
+                <tr>
+                    <td>{{ episode['episode_id'] }}</td>
+                    <td>{{ episode['movie_id'] }}</td>
+                    <td>{{ episode['episode_number'] }}</td>
+                    <td>{{ episode['title'] }}</td>
+                    <td>{{ episode['air_date'] }}</td>
+                    <td>{{ episode['description'] }}</td>
+                    <td><a href="{{ episode['video_link'] }}">Watch Now</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 Movie Site. All rights reserved.</p>
+    </footer>
+
+</body>
+
+</html>
